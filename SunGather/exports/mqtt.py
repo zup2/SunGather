@@ -123,6 +123,9 @@ class export_mqtt(object):
         payload = json.dumps(inverter.inverter_config | inverter.client_config | inverter.latest_scrape).replace('"', '\"')
         logging.debug(f"MQTT: Publishing Registers: {self.mqtt_config['topic']} : {payload}")
         self.mqtt_queue.append(self.mqtt_client.publish(self.mqtt_config['topic'], payload, qos=0).mid)
+        # export all fields separately
+        for k in inverter.latest_scrape.keys():
+            self.mqtt_queue.append(self.mqtt_client.publish(self.mqtt_config['topic']+'/'+self.cleanName(k), inverter.latest_scrape[k], qos=0).mid)
         logging.info(f"MQTT: Registers Published")
 
         return True
